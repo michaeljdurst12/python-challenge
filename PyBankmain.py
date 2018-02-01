@@ -1,47 +1,61 @@
-#Your task is to create a Python script that analyzes the records to calculate each of the following:
-#The total number of months included in the dataset
-#The total amount of revenue gained over the entire period
-#The average change in revenue between months over the entire period
-#The greatest increase in revenue (date and amount) over the entire period
-#The greatest decrease in revenue (date and amount) over the entire period
-
-import os
+# Dependencies
 import csv
 
-budget_data_1 = os.path.join("/Users/michaeldurst/Documents/GW_Data/resources/budget_data_1.csv")
+# Files to load and output (Remember to change these)
+file_to_load = "raw_data/budget_data_1.csv"
+file_to_output = "analysis/budget_analysis_1.txt"
 
-budget_data_2 = os.path.join("/Users/michaeldurst/Documents/GW_Data/resources/budget_data_2.csv")
+# Track various revenue parameters
+total_months = 0
+prev_revenue = 0
+month_of_change = []
+revenue_change_list = []
+greatest_increase = ["", 0]
+greatest_decrease = ["", 9999999999999999999]
+total_revenue = 0
 
-months1 = []
-revenue1 = []
-months2 = []
-revenue2 = []
+# Read the csv and convert it into a list of dictionaries
+with open(file_to_load) as revenue_data:
+    reader = csv.DictReader(revenue_data)
 
-with open(budget_data_1, newline"") as cvsfile:
-    csvreader = csv.reader(csvfile, delimeter=",")
-    
-    total_revenue = 0
-    total_months = 0
+    for row in reader:
 
-    for row in csvreader:
-        total_revenue += row[1]
-        total_months += 1
-        
+        # Track the total
+        total_months = total_months + 1
+        total_revenue = total_revenue + int(row["Revenue"])
 
+        # Track the revenue change
+        revenue_change = int(row["Revenue"]) - prev_revenue
+        prev_revenue = int(row["Revenue"])
+        revenue_change_list = revenue_change_list + [revenue_change]
+        month_of_change = month_of_change + [row["Date"]]
 
+        # Calculate the greatest increase
+        if (revenue_change > greatest_increase[1]):
+            greatest_increase[0] = row["Date"]
+            greatest_increase[1] = revenue_change
 
-#date
+        # Calculate the greatest decrease
+        if (revenue_change < greatest_decrease[1]):
+            greatest_decrease[0] = row["Date"]
+            greatest_decrease[1] = revenue_change
 
-# 1 big loop
-#load data, loop for how long the file is(count)months=0 total months + 1
-#in  the same for loop, sum of revenue, revenue = 0, revenue= revnue + int of column
-#put each column into its own list
-#month 0 corresponds to revenue 0 when you set to lists
+# Calculate the Average Revenue Change
+revenue_avg = sum(revenue_change_list) / len(revenue_change_list)
 
-    
-        
-#Total Months
-        #totalMonths = int(budget_data_1[1])
+# Generate Output Summary
+output = (
+    f"\nFinancial Analysis\n"
+    f"----------------------------\n"
+    f"Total Months: {total_months}\n"
+    f"Total Revenue: ${total_revenue}\n"
+    f"Average Revenue Change: ${revenue_avg}\n"
+    f"Greatest Increase in Revenue: {greatest_increase[0]} (${greatest_increase[1]})\n"
+    f"Greatest Decrease in Revenue: {greatest_decrease[0]} (${greatest_decrease[1]})\n")
 
-#Total Revenue
-        #totalRevenue = int(budget_data_1[1])
+# Print the output (to terminal)
+print(output)
+
+# Export the results to text file
+with open(file_to_output, "w") as txt_file:
+    txt_file.write(output)
