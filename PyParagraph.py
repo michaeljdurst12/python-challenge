@@ -1,32 +1,64 @@
-#Approximate word count
-#Approximate sentence count
-#Approximate letter count (per word)
-#Average sentence length (in words)
-
-import os
-import csv
+# Incorporate regular expressions
 import re
 
-read_paragraph1 = "1"
-# Run the code so long as the user wants to manage the systm
-while manage_system == "1":
-    # Take users input
-    action_item = input("What csv file would you like to view today? (1)PyParagraph? or (2)PyParagraph?")
-    if action_item == "1":
+# Files to load and output (Remember to change these)
+file_to_load = "raw_data/paragraph_2.txt"
+file_to_output = "analysis/paragraph_analysis.txt"
 
-        file = "Pyparagraph_1.txt"
+# String variable to hold the paragraph contents
+paragraph = ""
 
-        num_words = 0
-        num_sentences = 0
-        num_letters = 0
-        avg_sentenence_len = 0 
+# Read the text file
+with open(file_to_load) as txt_data:
 
-    with open(file, 'r') as file:
-    for line in file:
-        wordsList = line.split()
-        num_sentences += 1
-        num_words += len(wordsList)
-        num_letters += len(line)
+    # Store the contents as a string (with no new lines)
+    paragraph = txt_data.read().replace("\n", " ")
 
-    print(num_letters, num_sentences, num_words)
-    
+# Split the paragraph based on spaces to calculate word count
+word_split = paragraph.split(" ")
+word_count = len(word_split)
+
+# Create a list for holding all the letter counts
+letter_counts = []
+
+# Loop through the word array and calculate the length of each word
+for word in word_split:
+
+    # Add each letter count into the letter_counts list
+    letter_counts.append(len(word))
+
+# Calculate the avg letter count
+avg_letter_count = sum(letter_counts) / float(len(letter_counts))
+
+# Re-split the original paragraph based on punctuation (. ? !)
+sentence_split = re.split("(?<=[.!?]) +", paragraph)
+
+print(sentence_split)
+sentence_count = len(sentence_split)
+
+words_per_sentence = []
+
+# Loop through the sentence array and calculate the number of words in each
+for sentence in sentence_split:
+
+    # Calculate the number of words in each sentence and add to the list
+    words_per_sentence.append(len(sentence.split(" ")))
+
+# Calculate the avg word count (per sentence)
+avg_sentence_len = sum(words_per_sentence) / float(len(words_per_sentence))
+
+# Generate Paragraph Analysis Output
+output = (
+    f"\nParagraph Analysis\n"
+    f"-----------------\n"
+    f"Approximate Word Count: {word_count}\n"
+    f"Approximate Sentence Count: {sentence_count}\n"
+    f"Average Letter Count: {avg_letter_count}\n"
+    f"Average Sentence Length: {avg_sentence_len}\n")
+
+# Print all of the results (to terminal)
+print(output)
+
+# Save the results to analysis text file
+with open(file_to_output, "a") as txt_file:
+    txt_file.write(output)
